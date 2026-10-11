@@ -114,9 +114,9 @@
 - [x] Tooling: `uv`, ruff, pyright, pytest, pnpm, eslint/prettier, **pre-commit** hooks, `.env.example`, `Makefile` (`make dev`, `make test`, `make lint`)
 - [x] `docker compose up` brings up Postgres(pgvector) + Redis + API (hello endpoint) + web (hello page)
 - [x] GitHub Actions: lint + test on every PR (start CI on day 1)
-- [ ] Deploy the hello-world web app to Vercel right away (deploy early, deploy often)
+- [x] Deploy the hello-world web app to Vercel right away (deploy early, deploy often)
 - [ ] Write ADR-001 "Tech stack choices" (use the template in `docs/adr/`)
-- [ ] Get API keys and **set spend limits**: Anthropic, Google AI Studio (Gemini free tier); install Ollama and pull a small model + an embedding model
+- [x] Get API keys and **set spend limits**: Anthropic, Google AI Studio (Gemini free tier); install Ollama and pull a small model + an embedding model
 
 **Proof:** public repo, green CI badge, live Vercel URL, ADR-001.
 
@@ -463,3 +463,4 @@
 | 2026-10-11 | P0: monorepo, tooling, docker compose | Walking skeleton runs: web → api health, Postgres(pgvector) + Redis. CI workflow written (runs once pushed). Next.js is v16.4: read `node_modules/next/dist/docs` before using new APIs. |
 | 2026-10-11 | P0: GitHub Actions CI | Repo pushed to github.com/Yong-Ching/opspilot, CI green (api/web/docker). Note: `astral-sh/setup-uv` has no major tags, so pin the full version. |
 | 2026-10-11 | P0: API keys + local models | Anthropic + Gemini keys verified (in gitignored apps/api/.env). Ollama: `qwen3:4b-instruct` (~45 tok/s on M3 Pro) + `nomic-embed-text` (768-dim). Lesson: the `qwen3:4b` thinking variant used 365 output tokens for a 1-sentence answer vs 34 for instruct, so watch hidden reasoning tokens in cost estimates. Pending: confirm Anthropic spend limit. |
+| 2026-10-11 | P0: Vercel + keys | Vercel production deploy succeeded (root dir `apps/web`, auto-deploys on push). Keys rotated + spend limit set. Started job research (4 postings). |
