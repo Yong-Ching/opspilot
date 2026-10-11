@@ -6,6 +6,8 @@ AI operations copilot for **Acme Market**, a fictional e-commerce company. It's 
 order management system: answers grounded in policy docs, analysis of business data, and agent actions with
 human approval, all with cost, quality and safety tracked.
 
+**Live demo:** https://opspilot-virid.vercel.app
+
 > 🚧 Under active development. See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 
 ## Quick start
