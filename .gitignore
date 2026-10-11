@@ -1,0 +1,30 @@
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Data (large/raw datasets are downloaded, not committed)
+data/raw/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Terraform
+.terraform/
+*.tfstate*
