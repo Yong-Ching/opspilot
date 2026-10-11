@@ -113,7 +113,7 @@
   ```
 - [x] Tooling: `uv`, ruff, pyright, pytest, pnpm, eslint/prettier, **pre-commit** hooks, `.env.example`, `Makefile` (`make dev`, `make test`, `make lint`)
 - [x] `docker compose up` brings up Postgres(pgvector) + Redis + API (hello endpoint) + web (hello page)
-- [ ] GitHub Actions: lint + test on every PR (start CI on day 1)
+- [x] GitHub Actions: lint + test on every PR (start CI on day 1)
 - [ ] Deploy the hello-world web app to Vercel right away (deploy early, deploy often)
 - [ ] Write ADR-001 "Tech stack choices" (use the template in `docs/adr/`)
 - [ ] Get API keys and **set spend limits**: Anthropic, Google AI Studio (Gemini free tier); install Ollama and pull a small model + an embedding model
@@ -461,3 +461,4 @@
 |---|---|---|
 | 2026-10-10 | Roadmap created | Starting Phase 0 |
 | 2026-10-11 | P0: monorepo, tooling, docker compose | Walking skeleton runs: web → api health, Postgres(pgvector) + Redis. CI workflow written (runs once pushed). Next.js is v16.4: read `node_modules/next/dist/docs` before using new APIs. |
+| 2026-10-11 | P0: GitHub Actions CI | Repo pushed to github.com/Yong-Ching/opspilot, CI green (api/web/docker). Note: `astral-sh/setup-uv` has no major tags, so pin the full version. |

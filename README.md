@@ -1,5 +1,7 @@
 # OpsPilot
 
+[![CI](https://github.com/Yong-Ching/opspilot/actions/workflows/ci.yml/badge.svg)](https://github.com/Yong-Ching/opspilot/actions/workflows/ci.yml)
+
 AI operations copilot for **Acme Market**, a fictional e-commerce company. It's built on top of their existing
 order management system: answers grounded in policy docs, analysis of business data, and agent actions with
 human approval, all with cost, quality and safety tracked.
