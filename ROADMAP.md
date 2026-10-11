@@ -462,3 +462,4 @@
 | 2026-10-10 | Roadmap created | Starting Phase 0 |
 | 2026-10-11 | P0: monorepo, tooling, docker compose | Walking skeleton runs: web → api health, Postgres(pgvector) + Redis. CI workflow written (runs once pushed). Next.js is v16.4: read `node_modules/next/dist/docs` before using new APIs. |
 | 2026-10-11 | P0: GitHub Actions CI | Repo pushed to github.com/Yong-Ching/opspilot, CI green (api/web/docker). Note: `astral-sh/setup-uv` has no major tags, so pin the full version. |
+| 2026-10-11 | P0: API keys + local models | Anthropic + Gemini keys verified (in gitignored apps/api/.env). Ollama: `qwen3:4b-instruct` (~45 tok/s on M3 Pro) + `nomic-embed-text` (768-dim). Lesson: the `qwen3:4b` thinking variant used 365 output tokens for a 1-sentence answer vs 34 for instruct, so watch hidden reasoning tokens in cost estimates. Pending: confirm Anthropic spend limit. |
