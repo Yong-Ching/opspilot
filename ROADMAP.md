@@ -93,9 +93,9 @@
 ## Phase 0 — Foundations, repo & walking skeleton (~15–20 h)
 
 **Understand**
-- [ ] How LLMs work at a working level: tokens, context window, temperature/top-p, why outputs are non-deterministic, hallucination
-- [ ] Pricing model: input vs output vs cached tokens; how to estimate cost per request and per user per month
-- [ ] Embeddings: what they are, cosine similarity, dimensions, why domain matters
+- [x] How LLMs work at a working level: tokens, context window, temperature/top-p, why outputs are non-deterministic, hallucination
+- [x] Pricing model: input vs output vs cached tokens; how to estimate cost per request and per user per month
+- [x] Embeddings: what they are, cosine similarity, dimensions, why domain matters
 - [ ] What AI Engineers and FDEs actually do: read 10 job postings and note the repeated keywords in `docs/job-keywords.md`
 
 **Build**
@@ -464,3 +464,4 @@
 | 2026-10-11 | P0: GitHub Actions CI | Repo pushed to github.com/Yong-Ching/opspilot, CI green (api/web/docker). Note: `astral-sh/setup-uv` has no major tags, so pin the full version. |
 | 2026-10-11 | P0: API keys + local models | Anthropic + Gemini keys verified (in gitignored apps/api/.env). Ollama: `qwen3:4b-instruct` (~45 tok/s on M3 Pro) + `nomic-embed-text` (768-dim). Lesson: the `qwen3:4b` thinking variant used 365 output tokens for a 1-sentence answer vs 34 for instruct, so watch hidden reasoning tokens in cost estimates. Pending: confirm Anthropic spend limit. |
 | 2026-10-11 | P0: Vercel + keys | Vercel production deploy succeeded (root dir `apps/web`, auto-deploys on push). Keys rotated + spend limit set. Started job research (4 postings). |
+| 2026-10-11 | P0 quiz (4 Qs) | Strong instincts, but stops before the why and the numbers. Practise: (1) finish calculations, cost/month = per-request × volume × 30; (2) find the biggest cost before optimizing (prompt caching beats prompt summarizing); (3) temperature 0 ≠ no hallucination; prevent it with grounding, citations, groundedness checks and evals; (4) FDE: measure first and pick tools after. Live demo: https://opspilot-virid.vercel.app |
