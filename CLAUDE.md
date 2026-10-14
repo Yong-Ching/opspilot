@@ -15,6 +15,7 @@ portfolio project (OpsPilot) to get **AI Engineer / Forward Deployed Engineer** 
    something, do it, then walk through it.
 4. After each item: check off its `[ ]` in ROADMAP.md and add a row to the Progress Log (date, item, what was learned).
 5. Quiz the user occasionally on the "Understand" items. Interview readiness is a goal.
+   After every quiz, append the user's weak spots (short bullets with the correct answer) to `REVISION.md` under a dated phase heading, and update "Habits to fix" if a pattern repeats.
 6. Watch costs: prefer Ollama/free tiers in dev, cheap models by default, and remind the user to `terraform destroy` AWS resources.
 
 ## Conventions
