@@ -132,8 +132,8 @@
 - [ ] How to run a customer discovery: stakeholders, success metrics, constraints (security, data residency, latency, budget)
 
 **Build**
-- [ ] Download the **Olist Brazilian E-Commerce dataset** (Kaggle, ~100k orders: customers, orders, items, payments, sellers, products, reviews)
-- [ ] `legacy-oms`: a separate FastAPI service with its **own** Postgres schema loaded from Olist. Endpoints: get order, search orders, customer history, create refund request, update order status. Add API-key auth and deliberately "legacy" quirks (pagination limits, odd field names) to make the integration realistic
+- [x] Download the **Olist Brazilian E-Commerce dataset** (Kaggle, ~100k orders: customers, orders, items, payments, sellers, products, reviews)
+- [x] `legacy-oms`: a separate FastAPI service with its **own** Postgres schema loaded from Olist. Endpoints: get order, search orders, customer history, create refund request, update order status. Add API-key auth and deliberately "legacy" quirks (pagination limits, odd field names) to make the integration realistic
 - [ ] Emit events (`order.updated`, `refund.requested`) via a **transactional outbox** table and a webhook dispatcher
 - [ ] Synthetic unstructured data: use an LLM (cheap model or Ollama) to generate:
   - [ ] ~30 policy/runbook docs (returns, shipping SLAs, seller handbook, fraud procedure, refund approval matrix) as PDF/Markdown/HTML, each tagged `public` / `internal` / `finance-only`
@@ -465,3 +465,4 @@
 | 2026-10-11 | P0: API keys + local models | Anthropic + Gemini keys verified (in gitignored apps/api/.env). Ollama: `qwen3:4b-instruct` (~45 tok/s on M3 Pro) + `nomic-embed-text` (768-dim). Lesson: the `qwen3:4b` thinking variant used 365 output tokens for a 1-sentence answer vs 34 for instruct, so watch hidden reasoning tokens in cost estimates. Pending: confirm Anthropic spend limit. |
 | 2026-10-11 | P0: Vercel + keys | Vercel production deploy succeeded (root dir `apps/web`, auto-deploys on push). Keys rotated + spend limit set. Started job research (4 postings). |
 | 2026-10-11 | P0 quiz (4 Qs) | Strong instincts, but stops before the why and the numbers. Practise: (1) finish calculations, cost/month = per-request × volume × 30; (2) find the biggest cost before optimizing (prompt caching beats prompt summarizing); (3) temperature 0 ≠ no hallucination; prevent it with grounding, citations, groundedness checks and evals; (4) FDE: measure first and pick tools after. Live demo: https://opspilot-virid.vercel.app |
+| 2026-10-14 | P1: Olist + legacy OMS | 99k orders loaded (13 s, COPY). Data tails off with stray canceled orders: loader finds the last day with ≥10 orders, trims after it, shifts dates so it lands on 2026-10-10. Learned: psycopg rejects f-string SQL (injection protection); use `sql.SQL`/`sql.Identifier`. Quirks documented in apps/legacy-oms/README.md. Next: outbox (yours). |

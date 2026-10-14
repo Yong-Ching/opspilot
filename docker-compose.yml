@@ -6,7 +6,9 @@ services:
       POSTGRES_PASSWORD: opspilot
       POSTGRES_DB: opspilot
     ports: ["5432:5432"]
-    volumes: [pgdata:/var/lib/postgresql/data]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/docker/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U opspilot"]
       interval: 5s
@@ -30,6 +32,14 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+
+  legacy-oms:
+    build: ./apps/legacy-oms
+    environment:
+      ACME_DATABASE_URL: postgresql://acme:acme@postgres:5432/acme_oms
+    ports: ["8100:8100"]
+    depends_on:
+      postgres: { condition: service_healthy }
 
   web:
     build:
