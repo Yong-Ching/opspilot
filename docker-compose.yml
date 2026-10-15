@@ -33,10 +33,10 @@ services:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
 
-  legacy-oms:
-    build: ./apps/legacy-oms
+  legacy-pms:
+    build: ./apps/legacy-pms
     environment:
-      ACME_DATABASE_URL: postgresql://acme:acme@postgres:5432/acme_oms
+      HC_DATABASE_URL: postgresql://hc:hc@postgres:5432/hc_pms
     ports: ["8100:8100"]
     depends_on:
       postgres: { condition: service_healthy }

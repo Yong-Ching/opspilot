@@ -26,21 +26,21 @@ jobs:
       - run: uv run pyright
       - run: uv run pytest -q
 
-  legacy-oms:
+  legacy-pms:
     runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: acme
-          POSTGRES_PASSWORD: acme
-          POSTGRES_DB: acme_oms
+          POSTGRES_USER: hc
+          POSTGRES_PASSWORD: hc
+          POSTGRES_DB: hc_pms
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U acme" --health-interval 5s --health-retries 10
+          --health-cmd "pg_isready -U hc" --health-interval 5s --health-retries 10
     defaults:
       run:
-        working-directory: apps/legacy-oms
+        working-directory: apps/legacy-pms
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
@@ -67,7 +67,7 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
-    needs: [api, legacy-oms, web]
+    needs: [api, legacy-pms, web]
     steps:
       - uses: actions/checkout@v7
       - run: docker compose build

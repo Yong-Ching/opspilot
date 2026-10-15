@@ -1,0 +1,8 @@
+sgx_code,yahoo_ticker,name,type,sector,currency,sponsor,ir_url,notes
+C38U,C38U.SI,CapitaLand Integrated Commercial Trust,REIT,Retail & Office,SGD,,,synthetic fixture
+M44U,M44U.SI,Mapletree Logistics Trust,REIT,Logistics,SGD,,,synthetic fixture
+AJBU,AJBU.SI,Keppel DC REIT,REIT,Data Centre,SGD,,,synthetic fixture
+DCRU,DCRU.SI,Digital Core REIT,REIT,Data Centre,USD,,,synthetic fixture
+9A4U,9A4U.SI,ESR-REIT,REIT,Industrial,SGD,,,synthetic fixture
+D05,D05.SI,DBS Group Holdings,Stock,Banks,SGD,,,synthetic fixture
+O39,O39.SI,Oversea-Chinese Banking Corporation,Stock,Banks,SGD,,,synthetic fixture

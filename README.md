@@ -14,7 +14,9 @@ manager approval, and cost, numeric accuracy and safety are all measured.
 ## Quick start
 
 ```bash
-make install   # uv sync, pnpm install, pre-commit hooks
+make install      # uv sync, pnpm install, pre-commit hooks
+make market-data  # download prices/dividends/FX for the coverage universe (not committed)
+make pms-load     # build the legacy PMS database
 make up        # whole stack in Docker → web :3000, api :8000
 # or, for hot reload:
 make infra && make api   # terminal 1
@@ -26,7 +28,7 @@ make web                 # terminal 2
 |---|---|
 | `apps/api` | ResearchPilot AI backend (FastAPI) |
 | `apps/web` | Dashboard & chat UI (Next.js) |
-| `apps/legacy-oms` | Simulated existing system (being reworked into the legacy PMS) |
+| `apps/legacy-pms` | Harbourfront's existing Portfolio Management System (simulated) |
 | `apps/partner-agent` | External data vendor's agent (A2A) |
 | `mcp/pms-mcp` | MCP server wrapping the legacy PMS |
 | `data/` | Ingestion pipelines (filings, market data), dbt models |
