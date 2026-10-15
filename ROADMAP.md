@@ -1,15 +1,20 @@
 # OpsPilot — Enterprise AI Engineer Portfolio Roadmap
 
-> **What you're building:** *OpsPilot*, an AI operations copilot added to an **existing** e‑commerce company's systems
-> (fictional company: **Acme Market**). It reads their orders database, policy documents and support tickets. It answers
-> questions with citations, analyzes the business data, takes actions with human approval, and reports its own cost,
-> quality and safety.
+> **What you're building:** *OpsPilot*, an AI operations copilot added to the **existing** systems of a Singapore
+> last-mile courier (fictional company: **Lion City Express, "LCX"**), which delivers parcels for e-commerce merchants
+> across Singapore. OpsPilot reads LCX's delivery database, SOPs and support tickets, plus **live Singapore data**
+> (LTA traffic, NEA weather). It answers questions with citations, analyzes delivery performance, takes actions
+> (reschedule, redirect to locker, compensation claims) with human approval, and reports its own cost, quality and safety.
 >
 > **Why this domain:** AI Engineer and Forward Deployed Engineer (FDE) roles are mostly about **integrating AI into a system
 > that already exists**, not building a demo from scratch. So the project starts with a "legacy" system you don't
 > rewrite, and every AI feature has to plug into it the way it would at a real customer.
 >
-> **Profile:** full-stack (Python + TypeScript) · Target: AI Engineer / FDE · Budget: **≤ $20/month** · Pace: self-paced
+> **Why Singapore logistics:** it's a large Singapore hiring sector (couriers, e-commerce, platforms), it has real
+> free public data (data.gov.sg, OneMap, LTA DataMall), and it raises the questions Singapore employers care about:
+> PDPA, data residency, Singlish and multilingual users, and Singapore's own AI governance tools (IMDA, AI Verify).
+>
+> **Profile:** full-stack (Python + TypeScript) · Target: AI Engineer / FDE in Singapore · Budget: **≤ $20/month** · Pace: self-paced
 
 ---
 
@@ -23,6 +28,39 @@
 - To continue in any new Claude Code session, say: *"Read ROADMAP.md, check my progress, and guide me through the next item."* (`CLAUDE.md` tells Claude how to mentor you.)
 - Rule of thumb: **write the core logic yourself**. Use AI to explain, review and scaffold boilerplate. You need to be able to defend every line in an interview.
 - Hour estimates are rough. Total is about **280–350 hours**.
+
+---
+
+## The business: Lion City Express (LCX)
+
+| | |
+|---|---|
+| **What LCX does** | Last-mile parcel delivery in Singapore for ~3,000 e-commerce merchants; ~100k parcels in the dataset |
+| **Network** | 1 sort hub (west) + 5 regional depots (North, North-East, East, West, Central); parcel lockers; cross-border line-haul to Johor (Malaysia) via a partner |
+| **Existing system** | *LCX Delivery Management System (DMS)*: an older REST API + Postgres. OpsPilot must integrate with it, not replace it |
+| **Users of OpsPilot** | Customer service agents, ops controllers (dispatch), hub managers, claims officers, merchant account managers, and **merchants** themselves (portal) |
+| **Example questions** | "Where is parcel LCX123…, and why is it late?" · "Which deliveries in Tampines are at risk from this afternoon's thunderstorm?" · "Failed-attempt rate by depot last month?" · "Can I approve S$180 compensation for this damaged parcel?" (answer depends on your role) |
+
+**Data sources**
+- **Olist dataset, localised to Singapore** (Phase 1): 99k real orders become LCX shipments. Brazilian cities → Singapore addresses and postal codes, BRL → SGD, multi-week Brazilian transit times compressed to Singapore 1–3 day SLAs *while keeping which deliveries were late*, Portuguese reviews → delivery feedback in Singapore English, Singlish, Chinese and Malay. Explain this openly in interviews: it's a deliberate data-engineering choice.
+- **Synthetic** (Phase 1): drivers, depots, failed delivery attempts, compensation claims, ~30 SOPs, ~2,000 support tickets.
+- **Live public data** (Phase 2): LTA DataMall (traffic incidents, travel times), NEA weather (2-hour forecast, rainfall) via data.gov.sg, Singapore public holidays, OneMap (geocoding, planning areas).
+
+## Singapore layer (applies across phases)
+
+| Topic | Where | What you'll do |
+|---|---|---|
+| **PDPA** | 1, 2, 8 | Recipient names, phones and addresses are personal data: purpose limitation, retention, access control, audit |
+| **NRIC/FIN** | 2, 8 | Driver records and ID checks for high-value collection only. Mask to `S****567A` (PDPC advisory guidelines on NRIC); validate checksums |
+| **Local PII formats** | 2, 8 | Custom Presidio recognizers: NRIC/FIN, +65 phone numbers, 6-digit postal codes, unit numbers (`#12-345`) |
+| **Multilingual / Singlish** | 3, 4, 9 | **SEA-LION** (AI Singapore) as a local model; eval sets in Singlish, Chinese and Malay |
+| **LionGuard** | 8 | GovTech's moderation classifier tuned for Singapore content and Singlish |
+| **IMDA Model AI Governance Framework (GenAI)** | 8, 15 | Map your controls to it in `docs/governance.md` |
+| **AI Verify / Project Moonshot** | 9 | LLM benchmarking and red-teaming with Singapore's open-source toolkit |
+| **Data residency** | 13 | AWS **ap-southeast-1 (Singapore)**; Bedrock in-region where available |
+| **Local details** | all | SGD, SGT (UTC+8), `DD/MM/YYYY`, PayNow for cash-on-delivery, peak seasons (11.11, 12.12, Chinese New Year), SG–MY cross-border |
+
+*Before each phase, verify the current version and availability of the Singapore tools (SEA-LION on Ollama, LionGuard, Moonshot, Bedrock regions). They change.*
 
 ---
 
@@ -40,15 +78,16 @@
 │ Agent Orchestrator (LangGraph supervisor) ──► Knowledge agent (RAG)                                │
 │                                           ├─► Analyst agent (text-to-SQL + sandboxed Python)       │
 │                                           ├─► Ops agent (actions via MCP, human-in-the-loop)       │
-│                                           └─► A2A client ──► Logistics Partner Agent (separate svc)│
+│                                           └─► A2A client ──► MY cross-border partner agent (svc)   │
 │ Skills registry · Prompt registry · Memory                                                         │
 └──────┬──────────────────┬──────────────────────┬───────────────────────┬──────────────────────────┘
        │                  │                      │                       │
- Postgres + pgvector   Redis (cache,        OMS MCP Server ──► "Legacy" Order Mgmt System (REST + own DB)
+ Postgres + pgvector   Redis (cache,        DMS MCP Server ──► "Legacy" LCX Delivery Mgmt System (REST + DB)
  (app, vectors,        queues, limits)       (wraps legacy API)       ▲ webhooks / outbox events
   analytics marts)                                                    │
        ▲                                                              │
  Ingestion & analytics: Dagster ── dbt ── document parsing/chunking/embedding ── data quality checks
+ Live SG feeds: LTA DataMall (traffic) · NEA weather (data.gov.sg) · public holidays · OneMap (geocoding)
  Observability: Langfuse (LLM traces, evals, prompts) + OpenTelemetry + structured logs
  CI/CD: GitHub Actions (+ Jenkins pipeline) → Docker images → Vercel / Render|Fly / AWS (Terraform)
 ```
@@ -63,18 +102,19 @@
 | Cache/queue | **Redis** (local → Upstash free) + **Celery** workers | arq, SQS, Kafka (concept) |
 | Data/ETL | **Dagster** + **dbt** (dbt-postgres) + DuckDB for ad-hoc work; **pandera** for data quality | Airflow (most common in job ads), Prefect, Great Expectations, Fivetran/Airbyte |
 | Doc parsing | **Docling** or `unstructured` | LlamaParse, AWS Textract |
-| LLMs | **LiteLLM** in front of Claude (cheap tier by default, strong tier for hard tasks), Gemini free tier, **Ollama** locally | OpenAI, Bedrock, Azure OpenAI, vLLM |
+| LLMs | **LiteLLM** in front of Claude (cheap tier by default, strong tier for hard tasks), Gemini free tier, **Ollama** locally (Qwen, **SEA-LION**) | OpenAI, Bedrock, Azure OpenAI, vLLM |
 | Embeddings / rerank | `bge-small`/`nomic-embed` via Ollama/fastembed (free) · FlashRank or `bge-reranker` | Voyage, Cohere, OpenAI embeddings |
 | Agents | Raw tool-use loop first (from scratch), then **LangGraph** | Claude Agent SDK, OpenAI Agents SDK, PydanticAI, CrewAI, AutoGen |
 | Protocols | **MCP** (official Python SDK / FastMCP), **A2A** (a2a-sdk), Agent Skills (`SKILL.md`) | OpenAPI tools, function calling |
-| Guardrails | Custom policy layer + **Presidio** (PII) + **LLM Guard** / Llama Guard (injection/toxicity) | NeMo Guardrails, Guardrails AI, Bedrock Guardrails |
-| Evals | **DeepEval** (pytest-style) + **Ragas** metrics + **promptfoo** (red teaming) | Braintrust, LangSmith |
+| Guardrails | Custom policy layer + **Presidio** (PII, with SG recognizers) + **LionGuard** (SG moderation) + **LLM Guard** / Llama Guard (injection) | NeMo Guardrails, Guardrails AI, Bedrock Guardrails |
+| Evals | **DeepEval** (pytest-style) + **Ragas** metrics + **promptfoo** + **Project Moonshot** (red teaming) | Braintrust, LangSmith |
 | Observability | **Langfuse** (cloud free/self-host) + **OpenTelemetry** + structlog | Arize Phoenix, LangSmith, Datadog |
 | Auth | **Auth.js** (Next) + JWT validation in FastAPI; optional **Keycloak** for SSO/OIDC | Clerk, Auth0, Cognito, Entra ID |
 | Containers | **Docker**, docker compose, multi-stage builds | Podman |
 | CI/CD | **GitHub Actions** (main) + **Jenkins** (Jenkinsfile, run locally in Docker) | GitLab CI, ArgoCD |
-| Cloud | **Vercel** (web) + **Render/Fly.io** (API, free/cheap) + **AWS via Terraform** (ECS Fargate/ECR/RDS/Secrets Manager; deploy, demo, destroy) | GCP Cloud Run, Azure |
-| Optional | Kubernetes (kind/k3d + Helm), LoRA fine-tuning, voice | EKS, SageMaker |
+| Cloud | **Vercel** (web) + **Render/Fly.io** (API, free/cheap) + **AWS ap-southeast-1 via Terraform** (ECS Fargate/ECR/RDS/Secrets Manager; deploy, demo, destroy) | GCP Cloud Run, Azure |
+| SG data | **data.gov.sg** APIs, **OneMap**, **LTA DataMall** (free registration) | — |
+| Optional | Kubernetes (kind/k3d + Helm), LoRA fine-tuning, voice, route optimisation (OR-Tools) | EKS, SageMaker |
 
 ## Monthly budget (≤ $20)
 
@@ -82,6 +122,7 @@
 |---|---|
 | LLM API (cheap model by default, prompt caching, Ollama/Gemini free tier for dev) | $5–12 |
 | Vercel Hobby, Neon, Upstash, Langfuse Cloud Hobby, GitHub Actions (public repo) | $0 |
+| data.gov.sg, OneMap, LTA DataMall | $0 |
 | API host: Render free (sleeps when idle) or Fly.io | $0–5 |
 | AWS: spin up with Terraform → record demo → `terraform destroy` (set an **AWS Budgets alert at $5**) | $1–5 per session |
 | Domain name (optional, yearly) | ~$1/mo |
@@ -103,9 +144,9 @@
   ```
   apps/web            # Next.js
   apps/api            # FastAPI (OpsPilot)
-  apps/legacy-oms     # the "existing" system (Phase 1)
-  apps/partner-agent  # A2A logistics agent (Phase 7)
-  mcp/oms-mcp         # MCP server (Phase 6)
+  apps/legacy-dms     # LCX's existing delivery system (Phase 1)
+  apps/partner-agent  # Malaysian cross-border partner's agent, A2A (Phase 7)
+  mcp/dms-mcp         # MCP server wrapping the DMS (Phase 6)
   data/               # dagster + dbt + ingestion (Phase 2)
   evals/              # datasets + eval suites (Phase 9)
   infra/              # docker, terraform, jenkins
@@ -124,24 +165,32 @@
 
 ## Phase 1 — The "existing enterprise system" you integrate with (~15–20 h)
 
-*FDE mindset: you're joining Acme Market. They already have an Order Management System (OMS) and you can't rewrite it.*
+*FDE mindset: you're joining Lion City Express. They already have a Delivery Management System (DMS) and you can't rewrite it.*
 
 **Understand**
 - [ ] Integration patterns: REST API wrapping, DB read replicas, webhooks, event-driven (transactional outbox), batch export, CDC (change data capture)
 - [ ] Why AI should get **least-privilege, read-only** access by default, with writes going through the system's own API (business rules, audit)
-- [ ] How to run a customer discovery: stakeholders, success metrics, constraints (security, data residency, latency, budget)
+- [ ] How to run a customer discovery: stakeholders, success metrics, constraints (security, **PDPA**, data residency, latency, budget)
+- [ ] Last-mile logistics basics: shipment lifecycle, SLA, first-attempt delivery rate, failed attempts, returns to merchant, COD, lockers, hub-and-spoke, cross-border
 
 **Build**
 - [x] Download the **Olist Brazilian E-Commerce dataset** (Kaggle, ~100k orders: customers, orders, items, payments, sellers, products, reviews)
-- [x] `legacy-oms`: a separate FastAPI service with its **own** Postgres schema loaded from Olist. Endpoints: get order, search orders, customer history, create refund request, update order status. Add API-key auth and deliberately "legacy" quirks (pagination limits, odd field names) to make the integration realistic
-- [ ] Emit events (`order.updated`, `refund.requested`) via a **transactional outbox** table and a webhook dispatcher
+- [x] v1: `legacy-oms` built as an e-commerce order system (API-key auth, legacy quirks, outbox table, tests, CI). Reused below
+- [ ] **Rework into `legacy-dms`** (LCX's Delivery Management System):
+  - [ ] Rename (`acme_oms` → `lcx_dms`, env `ACME_` → `LCX_`, database `acme_oms` → `lcx_dms`)
+  - [ ] **Localisation step in the loader:** orders → shipments with tracking numbers; sellers → merchants; customers → recipients with real Singapore addresses/postal codes (data.gov.sg / OneMap), weighted by planning-area population; BRL → SGD; product weight/dimensions → parcel size; compress transit times to 1–3 day SLAs keeping late deliveries late; public holidays respected
+  - [ ] New tables: `tracking_events` (BOOKED → PICKED_UP → AT_HUB → OUT_FOR_DELIVERY → DELIVERED / FAILED_ATTEMPT → RETURNED), `drivers`, `depots`, `lockers`, `claims` (replaces refunds), COD payments (PayNow / cash)
+  - [ ] Endpoints: get shipment by tracking number, search shipments, recipient history, tracking timeline, reschedule delivery, redirect to locker, create compensation claim, update status
+  - [ ] Keep the legacy quirks (HTTP 200 errors, `DD/MM/YYYY`, per-shipment recipient IDs, page cap)
+- [ ] Emit events (`shipment.status_changed`, `delivery.rescheduled`, `claim.requested`) via a **transactional outbox** table and a webhook dispatcher **(yours)**
 - [ ] Synthetic unstructured data: use an LLM (cheap model or Ollama) to generate:
-  - [ ] ~30 policy/runbook docs (returns, shipping SLAs, seller handbook, fraud procedure, refund approval matrix) as PDF/Markdown/HTML, each tagged `public` / `internal` / `finance-only`
-  - [ ] ~2,000 support tickets tied to real Olist order IDs (categories, sentiment, resolution)
+  - [ ] ~30 SOPs/policies as PDF/Markdown/HTML, each tagged `public` / `internal` / `finance-only`. E.g. delivery T&Cs and FAQ (public), prohibited & dangerous goods (public), failed-delivery & re-delivery SOP, **wet-weather & lightning SOP**, parcel locker operations, peak season playbook (11.11 / 12.12 / CNY), SG–MY cross-border SOP, driver handbook, PDPA data protection policy (internal), **compensation matrix** and merchant rate cards (finance-only)
+  - [ ] ~2,000 support tickets tied to real tracking numbers ("where is my parcel", failed delivery, damaged/lost, address change, COD issue, missed merchant pickup), in **Singapore English, Singlish, Chinese and Malay**
+  - [ ] Translate the Portuguese reviews into delivery feedback (local model overnight = free)
   - [ ] This is synthetic data generation, itself a skill: write about it in `docs/`
-- [ ] `docs/discovery.md`: a mock customer discovery write-up covering problem, users (support agent, ops manager, analyst, exec), success metrics (e.g., -30% ticket handling time), constraints, risks
+- [ ] `docs/discovery.md`: a mock customer discovery write-up covering problem, users (CS agent, ops controller, hub manager, claims officer, merchant), success metrics (e.g., -30% "where is my parcel" handling time, +5 pts first-attempt delivery rate), constraints (PDPA, data stays in Singapore), risks
 
-**Proof:** running legacy OMS with OpenAPI docs, data generator scripts, discovery doc.
+**Proof:** running legacy DMS with OpenAPI docs, localisation + data generator scripts, discovery doc.
 
 ---
 
@@ -155,14 +204,15 @@
 - [ ] Data lineage and why enterprises care (governance, PII, access control)
 
 **Build**
-- [ ] **Structured pipeline (Dagster):** extract from the legacy OMS (API + DB replica) → load into the OpsPilot warehouse schema → **incremental** sync with watermarks, plus a webhook-triggered refresh
-- [ ] **dbt project:** staging → marts (`fct_orders`, `fct_reviews`, `dim_customers`, `dim_sellers`, `mart_daily_sales`, `mart_delivery_sla`) with dbt tests and generated docs
+- [ ] **Structured pipeline (Dagster):** extract from the legacy DMS (API + DB replica) → load into the OpsPilot warehouse schema → **incremental** sync with watermarks, plus a webhook-triggered refresh
+- [ ] **Live Singapore feeds (Dagster sensors, every 5–15 min):** NEA 2-hour forecast + rainfall (data.gov.sg), LTA traffic incidents + estimated travel times (DataMall), public holidays. Handle rate limits, API outages and late data
+- [ ] **dbt project:** staging → marts (`fct_shipments`, `fct_delivery_attempts`, `fct_claims`, `dim_merchants`, `dim_drivers`, `dim_planning_areas`, `mart_sla_by_area`, `mart_weather_impact`) with dbt tests and generated docs
 - [ ] **Data quality:** pandera/dbt tests; failing checks block downstream assets; record results
 - [ ] **Unstructured pipeline:** watch a docs folder (or S3 bucket later) → parse (Docling) → clean → chunk (compare 2 strategies) → embed → upsert into pgvector with metadata (`source`, `section`, `acl`, `version`, `hash`)
   - [ ] Re-ingest only changed docs (content hash); delete vectors for removed docs
   - [ ] Store document-level **ACLs** with each chunk (needed for permission-aware RAG)
 - [ ] Ticket pipeline: tickets → embeddings + LLM-extracted fields (category, product, sentiment) using **structured outputs** (batch API if available, which is cheaper)
-- [ ] PII handling at ingestion: detect and mask emails/phones/names in tickets with Presidio, keeping a reversible token vault only where justified
+- [ ] PII handling at ingestion (**PDPA**): Presidio with **custom Singapore recognizers** (NRIC/FIN with checksum, +65 phones, postal codes, unit numbers) to mask tickets; reversible token vault only where justified; retention rules written down
 - [ ] Dagster schedules + sensors; the UI shows lineage from source → marts → vector index
 
 **Proof:** Dagster lineage screenshot, dbt docs site, data quality report, ADR-002 "Chunking strategy" with measured comparison (filled in after Phase 4/9 evals).
@@ -181,6 +231,7 @@
 
 **Build**
 - [ ] `llm/gateway.py` on top of LiteLLM: one interface for Claude / Gemini / Ollama, streaming, retries, timeout, **fallback model**, provider-agnostic tool calling
+- [ ] Add **SEA-LION** as a local model; compare it with Qwen and Claude on 20 Singlish/Chinese/Malay customer messages (quality, latency, cost)
 - [ ] **Usage metering:** every call writes a row to `llm_calls` (tenant, user, feature, model, input/output/cached tokens, cost USD, latency, status, trace_id)
 - [ ] **Prompt registry:** prompts stored as versioned files (`prompts/*.yaml` with Jinja templates + metadata), loaded by name@version, and synced to Langfuse prompt management
 - [ ] Prompt caching enabled for long system prompts and doc context; measure the before/after cost
@@ -204,12 +255,13 @@
 
 **Build**
 - [ ] Retriever: pgvector dense + Postgres full-text (BM25-like) → RRF → reranker (FlashRank/bge-reranker) → top-k
-- [ ] Metadata + **ACL filtering** by the user's role (a support agent must not retrieve `finance-only` docs)
+- [ ] Metadata + **ACL filtering** by the user's role (a CS agent must not retrieve the `finance-only` compensation matrix)
+- [ ] **Cross-lingual retrieval:** a question in Chinese or Singlish finds the English SOP; answer in the user's language
 - [ ] Query rewriting with conversation history; multi-query for vague questions
 - [ ] Answer generation with inline **citations** (doc, section, link) + a "not found in knowledge base" path
 - [ ] Ticket similarity search ("show similar resolved tickets") as a second retrieval source
 - [ ] Freshness: doc version shown in citations; re-index on doc change (from Phase 2)
-- [ ] Build a **golden dataset now**: 50–100 Q&A pairs with expected source docs (including unanswerable and permission-trap questions), stored in `evals/datasets/rag.jsonl`
+- [ ] Build a **golden dataset now**: 50–100 Q&A pairs with expected source docs (including unanswerable, permission-trap and Singlish/Chinese/Malay questions), stored in `evals/datasets/rag.jsonl`
 
 **Proof:** retrieval metrics (recall@k, MRR) for naive vs hybrid vs hybrid+rerank in a table, plus a demo of the same question answered differently for two roles.
 
@@ -227,17 +279,18 @@
 
 **Build**
 - [ ] **5a. Harness from scratch (~200 lines, no framework):** raw tool-use loop with max steps, per-run token budget, tool timeouts, structured tool errors, parallel tool calls, and tracing of each step. This is the piece you explain in interviews
-- [ ] **5b. Analyst agent:** text-to-SQL over the dbt **marts** only
+- [ ] **5b. Analyst agent:** text-to-SQL over the dbt **marts** only (e.g. "SLA breach rate by planning area", "did rain last week raise failed attempts in the East?", "top merchants by volume before 11.11")
   - [ ] Schema retrieval (table/column descriptions from dbt docs) instead of dumping the whole schema
   - [ ] SQL validated with **sqlglot**: SELECT-only, allowed tables, `LIMIT` enforced, statement timeout, **read-only DB role**
   - [ ] Sandboxed Python for charts/stats (Docker sandbox or E2B free tier) → returns chart spec to the UI
-- [ ] **5c. Ops agent:** tools that call the legacy OMS (look up order, customer history, draft reply, **request refund**)
-  - [ ] Write actions require **approval** (interrupt → UI approve/reject → resume), checked against the refund approval matrix from the policy docs
+- [ ] **5c. Ops agent:** tools that call the legacy DMS (track parcel, recipient history, draft reply, **reschedule**, **redirect to locker**, **raise compensation claim**)
+  - [ ] Write actions require **approval** (interrupt → UI approve/reject → resume), checked against the compensation matrix (e.g. above S$100 needs a claims officer)
+  - [ ] **Delivery-risk tool:** combine out-for-delivery parcels with the live rain forecast and traffic incidents for an area
 - [ ] **5d. Port to LangGraph:** state graph, checkpointer (Postgres), interrupts for approvals, streaming of intermediate steps
 - [ ] Conversation memory: thread history + summarization when over N tokens; long-term "user preferences" store
 - [ ] Background job: a scheduled "daily ops digest" agent (Celery beat) that writes a report and posts it to the dashboard
 
-**Proof:** harness code + write-up "What a harness does", trace screenshot of a multi-step run, a refund flow paused for approval.
+**Proof:** harness code + write-up "What a harness does", trace screenshot of a multi-step run, a compensation claim paused for approval.
 
 ---
 
@@ -250,15 +303,15 @@
 - [ ] **Agent Skills:** packaged instructions + scripts + resources (`SKILL.md`) loaded on demand (progressive disclosure), and how they differ from tools and from MCP
 
 **Build**
-- [ ] `oms-mcp`: an MCP server wrapping the legacy OMS API (tools: `get_order`, `search_orders`, `create_refund_request`; resources: policy docs; prompts: "investigate late delivery")
+- [ ] `dms-mcp`: an MCP server wrapping the legacy DMS API (tools: `track_shipment`, `search_shipments`, `reschedule_delivery`, `create_claim`; resources: SOPs; prompts: "investigate late delivery"). It also hides the legacy quirks (HTTP-200 errors, date formats) from AI clients
   - [ ] Streamable HTTP transport + token auth; per-tool scopes (read vs write)
   - [ ] Test it with MCP Inspector **and** connect it to Claude Desktop/Claude Code (big demo value: "your system now works in any MCP client")
 - [ ] Refactor the Ops agent to consume tools **via MCP** instead of direct HTTP calls
 - [ ] Also consume one third-party MCP server (e.g., filesystem or GitHub) to show client-side integration
-- [ ] **Skills registry** in OpsPilot: folders like `skills/refund-investigation/SKILL.md`, `skills/weekly-sales-report/`; the agent sees short descriptions and loads full instructions only when relevant
-- [ ] Write one Claude Code skill for your own dev workflow (e.g., "add a new tool to the OMS MCP server") to show you use AI tooling well
+- [ ] **Skills registry** in OpsPilot: folders like `skills/damaged-parcel-claim/SKILL.md`, `skills/peak-season-report/`, `skills/wet-weather-escalation/`; the agent sees short descriptions and loads full instructions only when relevant
+- [ ] Write one Claude Code skill for your own dev workflow (e.g., "add a new tool to the DMS MCP server") to show you use AI tooling well
 
-**Proof:** a video of Claude Desktop using your OMS MCP server, the skills folder, ADR-004 "Direct tools vs MCP".
+**Proof:** a video of Claude Desktop using your DMS MCP server, the skills folder, ADR-004 "Direct tools vs MCP".
 
 ---
 
@@ -271,9 +324,10 @@
 
 **Build**
 - [ ] **Supervisor graph** (LangGraph): routes to Knowledge / Analyst / Ops agents; shared state; handoff with context summaries; max-hop limit
-- [ ] `partner-agent`: a separate service simulating a **third-party logistics company's agent** (built with a *different* framework, e.g. PydanticAI or Google ADK, to prove interoperability). It answers "where is shipment X / delay reason / ETA"
+- [ ] `partner-agent`: a separate service simulating LCX's **Malaysian cross-border line-haul partner** in Johor (built with a *different* framework, e.g. PydanticAI or Google ADK, to prove interoperability). It answers "where is shipment X / checkpoint delay at Woodlands or Tuas / ETA", possibly in Malay
 - [ ] Expose it via **A2A** (Agent Card at `/.well-known/agent-card.json`); OpsPilot discovers and calls it as an A2A client, including streaming status updates
 - [ ] Treat partner responses as **untrusted input** (schema validation + guardrails)
+- [ ] Stretch: expose OpsPilot itself as an **A2A server** so a merchant's own agent can ask LCX for delivery ETAs (OpsPilot as both client and server)
 - [ ] Compare one task done by a single agent vs multi-agent: quality, latency, cost. Record it honestly (sometimes single wins)
 
 **Proof:** sequence diagram of a cross-agent request, comparison table, ADR-005 "When we use multi-agent".
@@ -286,18 +340,20 @@
 - [ ] **OWASP Top 10 for LLM Applications** (prompt injection, sensitive info disclosure, excessive agency, insecure output handling, supply chain, etc.)
 - [ ] Direct vs **indirect prompt injection** (malicious text inside docs/tickets/tool results)
 - [ ] Defense in depth: input filters, privilege separation, tool allowlists, output validation, HITL, monitoring. No single filter is enough
-- [ ] PII/data protection basics: GDPR-style principles, data minimization, retention, audit logs
+- [ ] Data protection: **PDPA** obligations (consent, purpose limitation, protection, retention, breach notification), PDPC guidance on NRIC, data minimization, audit logs
+- [ ] **IMDA Model AI Governance Framework for Generative AI**: its dimensions and how your controls map to them
 
 **Build**
 - [ ] Guardrail pipeline as middleware with pluggable checks + per-tenant policy config:
-  - [ ] Input: PII detection/redaction (Presidio), injection/jailbreak classifier (LLM Guard or Llama Guard via Ollama), topic/scope limits
+  - [ ] Input: PII detection/redaction (Presidio + SG recognizers), injection/jailbreak classifier (LLM Guard or Llama Guard via Ollama), **LionGuard** for Singlish/local toxicity, topic/scope limits
   - [ ] Retrieval/tool results: scan for injected instructions and wrap them as data
   - [ ] Output: schema validation, PII leak check, **groundedness check** (claims supported by citations), toxicity
-  - [ ] Tools: role-based allowlist, argument validation, rate limits, approval required for writes/high-value refunds
+  - [ ] Tools: role-based allowlist, argument validation, rate limits, approval required for writes/high-value claims; never reveal a full address or phone number to someone who can't prove they're the recipient
 - [ ] Plant **poisoned documents/tickets** in the corpus (indirect injection) and prove they're neutralized
 - [ ] **Red teaming** with promptfoo red-team plugins; save the report
 - [ ] Audit log: who asked what, which data/tools were used, which guardrails fired (immutable table)
 - [ ] Threat model doc (`docs/threat-model.md`) with STRIDE-style table
+- [ ] `docs/governance.md`: PDPA data inventory (what personal data, why, where, how long) + mapping to the IMDA GenAI framework
 
 **Proof:** red-team report before/after, threat model, guardrail-trigger stats on the dashboard.
 
@@ -315,7 +371,8 @@
 **Build**
 - [ ] Langfuse integrated everywhere (traces per request, sessions, users, costs; prompt versions linked to traces)
 - [ ] OpenTelemetry for non-LLM spans (DB, HTTP), structured JSON logs with `trace_id`
-- [ ] Eval suites in `evals/`: RAG (Ragas/DeepEval), text-to-SQL (execution accuracy vs gold SQL), agent tasks (scenario tests with expected tool sequences), safety (red-team set)
+- [ ] Eval suites in `evals/`: RAG (Ragas/DeepEval), text-to-SQL (execution accuracy vs gold SQL), agent tasks (scenario tests with expected tool sequences), safety (red-team set), **multilingual** (Singlish/Chinese/Malay slices reported separately)
+- [ ] Run **Project Moonshot** (AI Verify Foundation) benchmarks + red-teaming against OpsPilot; include the report
 - [ ] **CI eval gate:** PRs that change prompts/retrieval/agents run a small eval subset; merge blocked if scores drop beyond a threshold (use a cheap judge model to stay in budget)
 - [ ] Thumbs up/down + comment in the UI → Langfuse scores → bad answers flow into the golden dataset (data flywheel)
 - [ ] Experiment log: at least 3 documented experiments (chunk size, reranker on/off, model A vs B) with quality/cost/latency trade-offs
@@ -333,12 +390,12 @@
 
 **Build**
 - [ ] **Chat interface:** streaming, markdown, inline **citations** with source preview, visible agent steps/tool calls (collapsible), stop/regenerate, conversation history, file upload (ask about an uploaded PDF)
-- [ ] **Approval inbox:** pending agent actions (refunds) with context and approve/reject → resumes the graph
-- [ ] **Ops dashboard:** KPIs from dbt marts (sales, late deliveries, review scores, ticket volume by category/sentiment) + "Ask about this chart" button
+- [ ] **Approval inbox:** pending agent actions (compensation claims, redirects) with context and approve/reject → resumes the graph
+- [ ] **Control-tower dashboard:** Singapore map by planning area (SLA breach, failed attempts, live rain overlay), depot KPIs, first-attempt delivery rate, claims, ticket volume by category/sentiment + "Ask about this chart" button
 - [ ] **Token & cost dashboard:** cost by day/model/feature/user/tenant, tokens in/out/cached, cache hit rate, p95 latency, error rate, **budgets** with progress bars, top expensive conversations (links to traces)
 - [ ] **Quality & safety page:** eval scores over time, feedback rate, guardrail triggers
 - [ ] **Admin:** users/roles, tenant settings (allowed models, budget limits, guardrail strictness), prompt versions in use, document sources + ingestion status
-- [ ] Embeddable **chat widget** (script tag / iframe) to show "drop AI into an existing app"
+- [ ] Embeddable **"track my parcel" chat widget** (script tag / iframe) for merchant websites, to show "drop AI into an existing app"
 - [ ] Accessibility basics + responsive layout; Playwright E2E tests for the key flows
 
 **Proof:** a 3–5 min demo video walking through the user journeys; screenshots in the README.
@@ -355,8 +412,8 @@
 - [ ] Testing pyramid for AI apps: unit (deterministic parts), integration (with recorded LLM responses), evals (non-deterministic), E2E
 
 **Build**
-- [ ] Auth.js login (GitHub OAuth + credentials) → JWT → FastAPI dependency checks roles: `support_agent`, `ops_manager`, `analyst`, `admin`
-- [ ] Multi-tenant: `tenant_id` everywhere + **Postgres Row-Level Security**; second demo tenant to prove isolation
+- [ ] Auth.js login (GitHub OAuth + credentials) → JWT → FastAPI dependency checks roles: `cs_agent`, `ops_controller`, `claims_officer`, `analyst`, `merchant`, `admin`
+- [ ] Multi-tenant: **each merchant is a tenant** in the merchant portal. `merchant_id` everywhere + **Postgres Row-Level Security**; prove merchant A can never see merchant B's shipments, even by asking the AI
 - [ ] Optional: Keycloak in docker compose for enterprise SSO (OIDC) demo
 - [ ] Redis rate limits (per user/tenant) + **token budget enforcement** (hard stop + friendly message)
 - [ ] Idempotency keys on action endpoints; Celery for long jobs (ingestion, reports) with retries/dead-letter
@@ -377,7 +434,7 @@
 - [ ] Database migrations in pipelines (Alembic) and zero-downtime concerns
 
 **Build**
-- [ ] Production Dockerfiles for api, legacy-oms, oms-mcp, partner-agent, worker, dagster (multi-stage, non-root, healthcheck, < 300 MB where possible)
+- [ ] Production Dockerfiles for api, legacy-dms, dms-mcp, partner-agent, worker, dagster (multi-stage, non-root, healthcheck, < 300 MB where possible)
 - [ ] `docker-compose.yml` (dev) + `docker-compose.prod.yml`; one command spins up the **entire** system with seed data
 - [ ] **GitHub Actions:** lint → typecheck → unit tests → build images → **Trivy scan** → eval gate (on AI changes) → push to GHCR/ECR → deploy staging → manual approval → prod
 - [ ] **Jenkins:** run Jenkins in Docker locally; write a `Jenkinsfile` with the same stages (declarative pipeline, credentials binding, parallel stages). Many enterprises still use Jenkins, so be able to talk about it
@@ -397,9 +454,9 @@
 
 **Build**
 - [ ] **Always-on cheap stack (the public demo):** Vercel (web) + Render/Fly.io (API, MCP, partner agent) + Neon (Postgres+pgvector) + Upstash (Redis) + Langfuse Cloud
-- [ ] **AWS stack via Terraform** in `infra/terraform/`: ECR, ECS Fargate services, ALB, RDS Postgres (or Neon to save cost), S3 for documents (ingestion trigger), Secrets Manager, CloudWatch logs/alarms, IAM roles per service
+- [ ] **AWS stack via Terraform** in `infra/terraform/`, region **ap-southeast-1 (Singapore)**: ECR, ECS Fargate services, ALB, RDS Postgres (or Neon to save cost), S3 for documents (ingestion trigger), Secrets Manager, CloudWatch logs/alarms, IAM roles per service
   - [ ] `terraform apply` → record demo/screenshots → `terraform destroy`; document cost per hour
-  - [ ] Optional: switch one model route to **Bedrock** through LiteLLM to show the enterprise cloud path
+  - [ ] Optional: switch one model route to **Bedrock** through LiteLLM to show the "data stays in Singapore" path (check in-region model availability)
 - [ ] GitHub Actions → AWS via **OIDC** (no long-lived keys)
 - [ ] Monitoring: uptime check (free tier, e.g., Better Stack/UptimeRobot), alerts on error rate and daily LLM spend
 - [ ] Runbook (`docs/runbook.md`): deploy, rollback, rotate secrets, re-index docs, handle LLM provider outage
@@ -413,10 +470,12 @@
 - [ ] **Kubernetes:** kind/k3d locally, Helm chart for the API + worker, HPA, readiness/liveness probes (EKS concepts)
 - [ ] **Fine-tuning:** LoRA fine-tune a small open model (Colab/Kaggle free GPU) for ticket classification; compare with prompting a large model on cost/latency/accuracy
 - [ ] **Local/private deployment:** run the full stack with Ollama/vLLM only ("air-gapped customer" scenario, which FDEs run into)
-- [ ] **GraphRAG** / knowledge graph over sellers-products-orders
-- [ ] **Voice** support agent (speech-to-text → agent → text-to-speech)
+- [ ] **Route optimisation:** an agent tool using Google OR-Tools (vehicle routing with time windows) to re-plan a driver's route after failed attempts or road incidents
+- [ ] **Delivery-delay prediction:** a small ML model (gradient boosting) on weather, area, depot, weekday, peak season; the agent explains predictions
+- [ ] **GraphRAG** / knowledge graph over merchants-shipments-areas
+- [ ] **Voice** hotline agent that understands Singapore-accented English and Singlish (speech-to-text → agent → text-to-speech; check A*STAR's MERaLiON models)
 - [ ] **Computer use / browser agent** for a legacy system without an API
-- [ ] **Streaming data:** Redpanda/Kafka for order events instead of webhooks
+- [ ] **Streaming data:** Redpanda/Kafka for tracking events + live LTA feeds instead of webhooks/polling
 
 ---
 
@@ -426,7 +485,8 @@
 - [ ] `docs/architecture.md` with C4-style diagrams (context, container, component)
 - [ ] 3–5 min demo video (Loom): business story first, tech second
 - [ ] **FDE artifacts:** discovery doc (Phase 1), integration playbook ("how to deploy OpsPilot at a new customer in 2 weeks"), customer-facing summary of a pilot's ROI
-- [ ] 2–3 blog posts / LinkedIn write-ups (e.g., "Permission-aware RAG in Postgres", "Building an agent harness from scratch", "Exposing a legacy API to any AI client with MCP")
+- [ ] 2–3 blog posts / LinkedIn write-ups (e.g., "Permission-aware RAG in Postgres", "Building an agent harness from scratch", "Singlish-ready guardrails with LionGuard", "Using live LTA and NEA data to predict delivery risk")
+- [ ] **Singapore target list** (`docs/target-companies.md`): logistics and e-commerce (e.g. Ninja Van, SingPost, SPX Express, Lazada Logistics, J&T, Lalamove, DHL / FedEx / UPS APAC), platforms (Grab, Shopee, Lazada), GovTech, AI vendors and consultancies. Use MyCareersFuture and LinkedIn; consider AI Singapore's **AIAP**
 - [ ] Resume bullets with numbers (e.g., "hybrid retrieval + rerank raised recall@5 from 0.62 → 0.87 while cutting cost per answer 40% via prompt caching")
 - [ ] Interview prep: be able to whiteboard any part of this system and answer:
   - [ ] Design a RAG system for 10M documents with per-user permissions
@@ -437,7 +497,9 @@
   - [ ] RAG vs fine-tuning vs long context: when do you pick each?
   - [ ] MCP vs A2A vs plain function calling
   - [ ] A customer says "the AI is wrong": walk through your debugging process (traces → retrieval → prompt → model)
-  - [ ] Walk me through deploying this at a bank with strict data residency
+  - [ ] Walk me through deploying this for a Singapore company under PDPA, with data that must stay in Singapore
+  - [ ] How would you handle a customer writing in Singlish or Chinese? How do you evaluate that?
+  - [ ] A thunderstorm hits the East at 3 pm: what should the system detect and do?
 
 ---
 
@@ -452,6 +514,7 @@
 - Hamel Husain's and Eugene Yan's blogs on evals and LLM systems
 - dbt Learn (free), Dagster University (free), Terraform tutorials (developer.hashicorp.com)
 - Full Stack Deep Learning / Made With ML (MLOps fundamentals)
+- **Singapore:** PDPC (PDPA overview + advisory guidelines on NRIC) · IMDA Model AI Governance Framework for Generative AI · AI Verify Foundation (Project Moonshot) · GovTech LionGuard · AI Singapore (SEA-LION, AIAP) · data.gov.sg API docs · OneMap API · LTA DataMall API user guide
 
 ---
 
@@ -466,3 +529,4 @@
 | 2026-10-11 | P0: Vercel + keys | Vercel production deploy succeeded (root dir `apps/web`, auto-deploys on push). Keys rotated + spend limit set. Started job research (4 postings). |
 | 2026-10-11 | P0 quiz (4 Qs) | Strong instincts, but stops before the why and the numbers. Practise: (1) finish calculations, cost/month = per-request × volume × 30; (2) find the biggest cost before optimizing (prompt caching beats prompt summarizing); (3) temperature 0 ≠ no hallucination; prevent it with grounding, citations, groundedness checks and evals; (4) FDE: measure first and pick tools after. Live demo: https://opspilot-virid.vercel.app |
 | 2026-10-14 | P1: Olist + legacy OMS | 99k orders loaded (13 s, COPY). Data tails off with stray canceled orders: loader finds the last day with ≥10 orders, trims after it, shifts dates so it lands on 2026-10-10. Learned: psycopg rejects f-string SQL (injection protection); use `sql.SQL`/`sql.Identifier`. Quirks documented in apps/legacy-oms/README.md. Next: outbox (yours). |
+| 2026-10-15 | Domain → Singapore last-mile courier | Switched from generic e-commerce to **Lion City Express (LCX)**, a Singapore courier. Olist data is kept but will be localised (addresses, SGD, 1–3 day SLAs, translated feedback). Added the Singapore layer (PDPA, NRIC, SEA-LION, LionGuard, IMDA, Moonshot, LTA/NEA live data, ap-southeast-1). Phase 1 code to be reworked into `legacy-dms`; outbox task unchanged. |
