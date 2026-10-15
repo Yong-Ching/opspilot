@@ -1,0 +1,26 @@
+sgx_code,yahoo_ticker,name,type,sector,currency,sponsor,ir_url,notes
+C38U,C38U.SI,CapitaLand Integrated Commercial Trust,REIT,Retail & Office,SGD,CapitaLand Investment,https://www.cict.com.sg,Largest S-REIT
+A17U,A17U.SI,CapitaLand Ascendas REIT,REIT,Industrial & Business Space,SGD,CapitaLand Investment,https://www.capitaland-ascendasreit.com,
+M44U,M44U.SI,Mapletree Logistics Trust,REIT,Logistics,SGD,Mapletree Investments,https://www.mapletreelogisticstrust.com,IR site blocks non-browser user agents
+ME8U,ME8U.SI,Mapletree Industrial Trust,REIT,Industrial & Data Centre,SGD,Mapletree Investments,https://www.mapletreeindustrialtrust.com,IR site blocks non-browser user agents
+N2IU,N2IU.SI,Mapletree Pan Asia Commercial Trust,REIT,Retail & Office,SGD,Mapletree Investments,https://www.mapletreepact.com,
+J69U,J69U.SI,Frasers Centrepoint Trust,REIT,Suburban Retail,SGD,Frasers Property,https://www.frasersproperty.com/reits/fct,
+BUOU,BUOU.SI,Frasers Logistics & Commercial Trust,REIT,Logistics & Commercial,SGD,Frasers Property,https://www.frasersproperty.com/reits/flct,~10 years of history
+K71U,K71U.SI,Keppel REIT,REIT,Office,SGD,Keppel,https://www.keppelreit.com,
+AJBU,AJBU.SI,Keppel DC REIT,REIT,Data Centre,SGD,Keppel,https://www.keppeldcreit.com,
+T82U,T82U.SI,Suntec REIT,REIT,Office & Retail,SGD,ESR Group,https://www.suntecreit.com,
+C2PU,C2PU.SI,Parkway Life REIT,REIT,Healthcare,SGD,IHH Healthcare,https://www.plifereit.com,IR site timed out from script; check in a browser
+HMN,HMN.SI,CapitaLand Ascott Trust,REIT,Hospitality,SGD,CapitaLand Investment,https://www.capitalandascotttrust.com,Stapled trust
+J85,J85.SI,CDL Hospitality Trusts,REIT,Hospitality,SGD,City Developments,https://www.cdlht.com,Stapled trust
+DCRU,DCRU.SI,Digital Core REIT,REIT,Data Centre,USD,Digital Realty,https://www.digitalcorereit.com,Trades in USD; listed 2021 (~5 years of history)
+9A4U,9A4U.SI,ESR-REIT,REIT,Industrial,SGD,ESR Group,https://www.esr-reit.com.sg,Old code J91U no longer resolves: identifiers change
+D05,D05.SI,DBS Group Holdings,Stock,Banks,SGD,,https://www.dbs.com/investors,
+O39,O39.SI,Oversea-Chinese Banking Corporation,Stock,Banks,SGD,,https://www.ocbc.com/group/investors,
+U11,U11.SI,United Overseas Bank,Stock,Banks,SGD,,https://www.uobgroup.com/investor-relations/,
+Z74,Z74.SI,Singapore Telecommunications,Stock,Telecommunications,SGD,,https://www.singtel.com/about-us/investor-relations,
+BN4,BN4.SI,Keppel Ltd,Stock,Conglomerate & Asset Management,SGD,,https://www.keppel.com/investor-relations,Sponsor of K71U and AJBU
+9CI,9CI.SI,CapitaLand Investment,Stock,Real Estate Investment Manager,SGD,,https://www.capitalandinvest.com/en/investors.html,Sponsor of C38U A17U HMN; listed 2021
+C6L,C6L.SI,Singapore Airlines,Stock,Airlines,SGD,,https://www.singaporeair.com/en_UK/sg/about-us/information-for-investors,
+S63,S63.SI,ST Engineering,Stock,Industrials & Defence,SGD,,https://www.stengg.com/en/investor-relations,
+F34,F34.SI,Wilmar International,Stock,Agribusiness,SGD,,https://www.wilmar-international.com,IR sub-page URL unknown; start from homepage
+S68,S68.SI,Singapore Exchange,Stock,Exchanges,SGD,,https://www.sgxgroup.com/investor-relations,
