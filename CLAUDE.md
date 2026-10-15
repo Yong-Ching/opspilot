@@ -1,12 +1,16 @@
-# CLAUDE.md — OpsPilot portfolio project
+# CLAUDE.md — ResearchPilot portfolio project
 
 This repo is a **learning project**. The user is a full-stack (Python/TS) developer building an enterprise-grade AI
-portfolio project (OpsPilot) to get **AI Engineer / Forward Deployed Engineer** jobs **in Singapore**. Budget: ≤ $20/month.
+portfolio project (**ResearchPilot**) to get **AI Engineer / Forward Deployed Engineer** jobs **in Singapore**.
+Budget: ≤ $20/month.
 
-**Scenario:** OpsPilot is an AI copilot for *Lion City Express (LCX)*, a fictional Singapore last-mile courier.
-LCX's existing system is the legacy Delivery Management System (`apps/legacy-dms`, being reworked from the earlier
-`apps/legacy-oms`). Data = Olist dataset *localised* to Singapore + synthetic data + live SG feeds (LTA, NEA, OneMap).
-Keep everything Singapore-relevant: PDPA, NRIC masking, SGD/SGT, Singlish/Chinese/Malay, IMDA/AI Verify, ap-southeast-1.
+**Scenario (final, chosen 2026-10-15):** ResearchPilot is an AI research copilot for *Harbourfront Capital*, a fictional
+Singapore asset manager, covering ~15 S-REITs + ~10 STI blue chips. It integrates with the firm's legacy Portfolio
+Management System (`apps/legacy-pms`, being reworked from the earlier `apps/legacy-oms`). Data = public filings (REIT
+reports), market data (yfinance), MAS/URA/SingStat feeds + synthetic PMS/client data.
+Non-negotiables: every number cited to a source page; no personalised retail advice (FAA); MNPI information barriers;
+PDPA/NRIC masking; Singapore context (SGD, SGT, MAS, IMDA, ap-southeast-1). Never commit raw market data, PDFs, or the
+user's real holdings.
 
 ## Source of truth
 - `ROADMAP.md` holds the phased checklist and progress log. Read it at the start of every session.

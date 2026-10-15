@@ -1,10 +1,11 @@
-# OpsPilot
+# ResearchPilot
 
 [![CI](https://github.com/Yong-Ching/opspilot/actions/workflows/ci.yml/badge.svg)](https://github.com/Yong-Ching/opspilot/actions/workflows/ci.yml)
 
-AI operations copilot for **Acme Market**, a fictional e-commerce company. It's built on top of their existing
-order management system: answers grounded in policy docs, analysis of business data, and agent actions with
-human approval, all with cost, quality and safety tracked.
+AI research copilot for the investment team of **Harbourfront Capital**, a fictional Singapore asset manager,
+covering Singapore REITs and STI blue chips. It plugs into the firm's existing Portfolio Management System and answers
+from REIT reports and market data with page-level citations. Trade proposals pass compliance checks and portfolio
+manager approval, and cost, numeric accuracy and safety are all measured.
 
 **Live demo:** https://opspilot-virid.vercel.app
 
@@ -23,12 +24,12 @@ make web                 # terminal 2
 ## Repo layout
 | Path | What |
 |---|---|
-| `apps/api` | OpsPilot AI backend (FastAPI) |
+| `apps/api` | ResearchPilot AI backend (FastAPI) |
 | `apps/web` | Dashboard & chat UI (Next.js) |
-| `apps/legacy-oms` | Simulated existing order management system |
-| `apps/partner-agent` | Third-party logistics agent (A2A) |
-| `mcp/oms-mcp` | MCP server wrapping the legacy OMS |
-| `data/` | Ingestion pipelines, dbt models |
+| `apps/legacy-oms` | Simulated existing system (being reworked into the legacy PMS) |
+| `apps/partner-agent` | External data vendor's agent (A2A) |
+| `mcp/pms-mcp` | MCP server wrapping the legacy PMS |
+| `data/` | Ingestion pipelines (filings, market data), dbt models |
 | `evals/` | Eval datasets & suites |
 | `infra/` | Docker, Terraform, Jenkins |
 | `docs/adr/` | Architecture decision records |
